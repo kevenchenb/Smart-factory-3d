@@ -30,7 +30,7 @@
 [Three.js 渲染层] (Canvas)  [属性面板] / [ECharts 图表]
       ↓ 用户操作 (保存场景)
 [Express API] → [SQLite / Drizzle ORM]
-
+```
 
 
 ## 项目目录结构
@@ -140,11 +140,12 @@ smart-factory-3d/
 
 ### 前提条件
  **Node.js >= 24**
+ 
  **pnpm >= 12**
 
 ### 1. 克隆项目并安装依赖
 ```bash
-git clone https://github.com/your-username/smart-factory-3d.git
+git clone https://github.com/kevenchenb/Smart-factory-3d.git
 cd smart-factory-3d
 pnpm install
 ```
@@ -152,8 +153,15 @@ pnpm install
 ### 2. 启动后端 (Express)
 
 ```bash
+// 开发环境
 cd server
 pnpm run dev
+
+// 生产环境 使用pm2进程守护
+git pull                 # 1. 拉取最新代码
+npm install              # 2. 安装依赖
+npm run build            # 3. 编译 TypeScript 到 dist 目录
+pm2 reload ecosystem.config.cjs  # 4. 平滑重启服务（不中断用户请求）
 # 服务运行在 http://localhost:3000
 ```
 
@@ -166,3 +174,33 @@ pnpm run dev
 ```
 
 ##  待完善功能 (Roadmap)
+
+💡 面试时，如何把这个点变成你的加分项？
+如果面试官问你：“你的后端在正式环境是怎么跑的？”
+不要只干巴巴地说“我用了 PM2”。 你可以这样分层回答，直接秒杀普通候选人：
+
+“在我目前的个人项目中，我是部署在云服务器上的，所以正式环境我采用的是 Nginx + PM2 + PM2 的 Cluster 集群模式，保证利用服务器的多核性能，同时配置了优雅退出（SIGTERM）和日志切分。如果未来公司的业务量级上升，或者基础设施全面上云，这套架构也很容易迁移到 Docker 容器化部署，届时进程守护就可以直接交给 K8s 的 Pod 健康检查来接管了。我的理解是：PM2 是为了解决单机多核和进程存活，而 K8s 是为了解决分布式集群的编排，看公司的实际基建情况选择就行。”
+
+🚀 你接下来的正式环境实战路径
+当你准备把这个项目真正上线时，你会经历以下标准的“正式环境”链路，这也是你简历上极好的素材：
+
+服务器准备：买一台云服务器（装 Ubuntu/CentOS）。
+
+装环境：安装 Node.js、pnpm、Nginx、PM2。
+
+拉代码：用 Git 把代码拉到服务器上，在 server 目录下执行 pnpm install 和 pnpm build。
+
+启动后端：执行 pm2 start ecosystem.config.cjs。
+
+配置 Nginx：
+
+把 client/dist 的静态文件交给 Nginx 托管。
+
+把 http://你的域名/api 的请求反向代理到 http://127.0.0.1:3000（也就是你的 PM2 服务）。
+
+配置 HTTPS：用 Certbot 申请 Let's Encrypt 免费证书。
+
+把这套流程跑通一次，你就在真实意义上掌握了全栈项目的生产环境部署。对于想拿 22k 的你来说，“会写 API” 是及格线，“懂 API 怎么在正式环境稳定运行” 才是拿高薪的筹码。 PM2 就是这中间最稳固的桥梁。
+
+
+“在生产环境，我使用 PM2 的集群模式来守护进程。代码更新时，我遵循‘构建-重载’的流程。关键在于，我使用 pm2 reload 而不是 restart。reload 会逐个替换工作进程，确保新进程就绪后才关闭旧进程，实现了零停机部署，用户完全无感知。同时，我会确保 PM2 配置文件中的 watch 选项在生产环境是关闭的，防止构建过程触发意外重启。这套流程也已经集成到了我的 CI/CD 流水线中，实现了自动化。”

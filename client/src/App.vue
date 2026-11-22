@@ -3,8 +3,7 @@
 <template>
   <h1>You did it!</h1>
   <p>
-    Visit <a href="https://vuejs.org/" target="_blank" rel="noopener">vuejs.org</a> to read the
-    documentation
+    还没想好做什么项目，以显得我很牛逼
   </p>
 </template>
 
